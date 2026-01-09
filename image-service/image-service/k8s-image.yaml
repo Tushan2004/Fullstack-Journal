@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: image-deployment
+spec:
+  replicas: 1  # Vi vill ha 1 kopia av servern igång
+  selector:
+    matchLabels:
+      app: image-service
+  template:
+    metadata:
+      labels:
+        app: image-service
+    spec:
+      containers:
+        - name: image-container
+          image: image-service:v1   # Bilden du byggde nyss!
+          imagePullPolicy: Never    # VIKTIGT: Säger åt K8s att använda din LOKALA bild
+          ports:
+            - containerPort: 3000   # Porten inuti containern
+          volumeMounts:             # Här kopplar vi lagring...
+            - mountPath: "/app/uploads"
+              name: image-storage
+      volumes:                      # ...till en volym så bilder sparas om podden dör
+        - name: image-storage
+          persistentVolumeClaim:
+            claimName: image-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim       # Detta är din "hårddisk" i K8s
+metadata:
+  name: image-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi                # Vi ber om 1 GB plats för bilder
+---
+apiVersion: v1
+kind: Service                     # Detta ger din app en IP-adress/DNS
+metadata:
+  name: image-service
+spec:
+  type: NodePort                  # Gör att vi kan nå den utifrån
+  selector:
+    app: image-service
+  ports:
+    - protocol: TCP
+      port: 80                    # Internt portnummer (andra tjänster anropar port 80)
+      targetPort: 3000            # Vidarebefordra till containerns port 3000
+      nodePort: 30001             # Vi tvingar fram port 30001 på din dator (för att testa)
