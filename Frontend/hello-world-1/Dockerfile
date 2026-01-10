@@ -8,6 +8,7 @@ RUN npm install
 COPY . .
 RUN npm run build
 
+
 # 2. Nginx stage (production web server)
 FROM nginx:alpine
 
