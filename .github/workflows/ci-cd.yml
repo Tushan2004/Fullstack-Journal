@@ -181,7 +181,7 @@ jobs:
       - name: Build & push image
         uses: docker/build-push-action@v5
         with:
-          context: ./image-service
+          context: ./image-service/image-service
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/image-service:latest
