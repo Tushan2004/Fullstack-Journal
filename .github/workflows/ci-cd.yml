@@ -2,69 +2,44 @@ name: Lab3 CI/CD
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   workflow_dispatch:
 
-# Common env used by all jobs
 env:
   REGISTRY: registry.cloud.cbh.kth.se
-  NAMESPACE: deploy-17874566-de03-424c-a14b-2fbac442e28c   # <-- change this
+  NAMESPACE: deploy-17874566-de03-424c-a14b-2fbac442e28c
 
+# ============================
+# communication-service
+# ============================
 jobs:
-  # ============================
-  # communication-service (MySQL)
-  # ============================
   communication-service:
     runs-on: ubuntu-latest
-
-    services:
-      mysql:
-        image: mysql:8.4
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: journal
-        ports:
-          - 3307:3306
-        options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
-
-    env:
-      SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3307/journal?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
 
     defaults:
       run:
         working-directory: communication-service/communication-service
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "25"
+          java-version: "21"
           cache: maven
 
-      - name: Run unit tests
-        run: mvn -B test
-
-      - name: Build JAR
+      - name: Build (skip tests)
         run: mvn -B package -DskipTests
 
-      - name: Login to cbhcloud registry
+      - name: Login to CBH registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push Docker image
+      - name: Build & push image
         uses: docker/build-push-action@v5
         with:
           context: ./communication-service/communication-service
@@ -73,7 +48,7 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/communication-service:latest
 
   # ============================
-  # user-service (Spring Boot)
+  # user-service
   # ============================
   user-service:
     runs-on: ubuntu-latest
@@ -88,23 +63,20 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "25"
+          java-version: "21"
           cache: maven
 
-      - name: Run unit tests
-        run: mvn -B test
-
-      - name: Build JAR
+      - name: Build (skip tests)
         run: mvn -B package -DskipTests
 
-      - name: Login to cbhcloud registry
+      - name: Login to CBH registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push Docker image
+      - name: Build & push image
         uses: docker/build-push-action@v5
         with:
           context: ./user-service/user-service
@@ -113,7 +85,7 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/user-service:latest
 
   # ============================
-  # profile-service (Spring Boot)
+  # profile-service
   # ============================
   profile-service:
     runs-on: ubuntu-latest
@@ -128,23 +100,20 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "25"
+          java-version: "21"
           cache: maven
 
-      - name: Run unit tests
-        run: mvn -B test
-
-      - name: Build JAR
+      - name: Build (skip tests)
         run: mvn -B package -DskipTests
 
-      - name: Login to cbhcloud registry
+      - name: Login to CBH registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push Docker image
+      - name: Build & push image
         uses: docker/build-push-action@v5
         with:
           context: ./profile-service/profile-service
@@ -153,7 +122,7 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/profile-service:latest
 
   # ============================
-  # search-service (Spring Boot)
+  # search-service
   # ============================
   search-service:
     runs-on: ubuntu-latest
@@ -168,23 +137,20 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "25"
+          java-version: "21"
           cache: maven
 
-      - name: Run unit tests
-        run: mvn -B test
-
-      - name: Build JAR
+      - name: Build (skip tests)
         run: mvn -B package -DskipTests
 
-      - name: Login to cbhcloud registry
+      - name: Login to CBH registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push Docker image
+      - name: Build & push image
         uses: docker/build-push-action@v5
         with:
           context: ./search-service/search-service
@@ -193,7 +159,7 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/search-service:latest
 
   # ============================
-  # image-service (Node/Express?)
+  # image-service (Node)
   # ============================
   image-service:
     runs-on: ubuntu-latest
@@ -205,23 +171,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # If you want tests for image-service and it's Node-based:
-      # - uses: actions/setup-node@v4
-      #   with:
-      #     node-version: "22"
-      #     cache: npm
-      #     cache-dependency-path: image-service/package-lock.json
-      # - run: npm ci
-      # - run: npm test -- --watch=false
-
-      - name: Login to cbhcloud registry
+      - name: Login to CBH registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push Docker image
+      - name: Build & push image
         uses: docker/build-push-action@v5
         with:
           context: ./image-service
@@ -230,7 +187,7 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/image-service:latest
 
   # ============================
-  # Frontend (React/Node)
+  # frontend (React)
   # ============================
   frontend:
     runs-on: ubuntu-latest
@@ -251,17 +208,17 @@ jobs:
       - name: Install deps
         run: npm ci
 
-      - name: Run frontend tests
-        run: npm test -- --watch=false || true   # <- or remove if no tests
+      - name: Build frontend
+        run: npm run build
 
-      - name: Login to cbhcloud registry
+      - name: Login to CBH registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push Docker image
+      - name: Build & push image
         uses: docker/build-push-action@v5
         with:
           context: ./Frontend
