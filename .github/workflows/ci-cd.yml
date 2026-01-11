@@ -45,7 +45,7 @@ jobs:
           context: ./communication-service/communication-service
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/communication-service-barua:latest
+            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/communication-service:latest
 
   # ============================
   # user-service
@@ -82,7 +82,7 @@ jobs:
           context: ./user-service/user-service
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/user-service-barua:latest
+            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/user-service:latest
 
   # ============================
   # profile-service
@@ -119,7 +119,7 @@ jobs:
           context: ./profile-service/profile-service
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/profile-service-barua:latest
+            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/profile-service:latest
 
   # ============================
   # search-service
@@ -156,7 +156,7 @@ jobs:
           context: ./search-service/search-service
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/search-service-barua:latest
+            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/search-service:latest
 
   # ============================
   # image-service (Node)
@@ -184,7 +184,7 @@ jobs:
           context: ./image-service/image-service
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/image-service-barua:latest
+            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/image-service:latest
 
   # ============================
   # frontend (React)
