@@ -18,5 +18,5 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 # IMPORTANT: use template so envsubst works
 COPY nginx.conf /etc/nginx/templates/default.conf.template
 
-EXPOSE 80
+EXPOSE 3001
 CMD ["nginx", "-g", "daemon off;"]
